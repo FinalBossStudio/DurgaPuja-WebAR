@@ -16,6 +16,11 @@
         font-weight: bold;
         color: green;
       }
+      #timestamp {
+        font-size: 0.9em;
+        color: #333;
+        margin-top: 5px;
+      }
       #error {
         color: red;
       }
@@ -25,12 +30,12 @@
     <h1>📡 Rotation Sender</h1>
     <div id="angle">Rotation: 0°</div>
     <div id="status">Initializing...</div>
+    <div id="timestamp">Timestamp: -</div>
     <div id="error"></div>
 
     <script type="module">
       import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-      // ✅ Replace with your Supabase project details
       const supabase = createClient(
         "https://hwrivprrcuxzyxfixkgv.supabase.co",
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh3cml2cHJyY3V4enl4Zml4a2d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAxMzgzOTksImV4cCI6MjA2NTcxNDM5OX0.VHSHQxAMQnnKZBySOlexJvIu7Aszkuh2w-mAfD8-CDE"
@@ -39,13 +44,15 @@
       const ROTATION_ID = "100";
       const angleDisplay = document.getElementById("angle");
       const statusDisplay = document.getElementById("status");
+      const timestampDisplay = document.getElementById("timestamp");
       const errorDisplay = document.getElementById("error");
 
       let lastSendTime = 0;
-      const sendInterval = 300; // ms → controls update frequency
+      const sendInterval = 300; // ms
 
       async function updateRotation(angle) {
         const timestamp = new Date().toISOString();
+        const localTime = new Date().toLocaleTimeString();
         console.log(`[SENDING] Angle: ${angle}° at ${timestamp}`);
 
         try {
@@ -64,6 +71,7 @@
             errorDisplay.textContent = "";
             statusDisplay.textContent = "✅ Sent successfully";
             statusDisplay.style.color = "green";
+            timestampDisplay.textContent = `Timestamp: ${localTime}`;
           }
         } catch (err) {
           errorDisplay.textContent = "❌ JS Error: " + err.message;
