@@ -30,10 +30,10 @@
     <script type="module">
       import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-      // 🔁 Replace with your Supabase values
+      // ✅ Replace with your Supabase project details
       const supabase = createClient(
-        "https://hwrivprrcuxzyxfixkgv.supabase.co", // <-- CHANGE THIS
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh3cml2cHJyY3V4enl4Zml4a2d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAxMzgzOTksImV4cCI6MjA2NTcxNDM5OX0.VHSHQxAMQnnKZBySOlexJvIu7Aszkuh2w-mAfD8-CDE"                 // <-- CHANGE THIS
+        "https://hwrivprrcuxzyxfixkgv.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh3cml2cHJyY3V4enl4Zml4a2d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAxMzgzOTksImV4cCI6MjA2NTcxNDM5OX0.VHSHQxAMQnnKZBySOlexJvIu7Aszkuh2w-mAfD8-CDE"
       );
 
       const ROTATION_ID = "100";
@@ -41,12 +41,18 @@
       const statusDisplay = document.getElementById("status");
       const errorDisplay = document.getElementById("error");
 
+      let lastSendTime = 0;
+      const sendInterval = 300; // ms → controls update frequency
+
       async function updateRotation(angle) {
+        const timestamp = new Date().toISOString();
+        console.log(`[SENDING] Angle: ${angle}° at ${timestamp}`);
+
         try {
           const { error } = await supabase
             .from("rotation")
             .upsert(
-              [{ id: ROTATION_ID, angle }],
+              [{ id: ROTATION_ID, angle, updated_at: timestamp }],
               { onConflict: ["id"] }
             );
 
@@ -70,7 +76,12 @@
         const yaw = e.alpha ?? 0;
         const rounded = parseFloat(yaw.toFixed(2));
         angleDisplay.textContent = `Rotation: ${rounded}°`;
-        updateRotation(rounded);
+
+        const now = Date.now();
+        if (now - lastSendTime > sendInterval) {
+          lastSendTime = now;
+          updateRotation(rounded);
+        }
       });
     </script>
   </body>
