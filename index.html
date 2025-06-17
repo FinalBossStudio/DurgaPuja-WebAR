@@ -30,13 +30,13 @@
     <script type="module">
       import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-      // 🔁 Replace these two with your actual Supabase credentials
+      // 🔁 Replace with your Supabase values
       const supabase = createClient(
         "https://hwrivprrcuxzyxfixkgv.supabase.co", // <-- CHANGE THIS
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh3cml2cHJyY3V4enl4Zml4a2d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAxMzgzOTksImV4cCI6MjA2NTcxNDM5OX0.VHSHQxAMQnnKZBySOlexJvIu7Aszkuh2w-mAfD8-CDE"                 // <-- CHANGE THIS
       );
 
-      const ROTATION_ID = "static-rotation-id";
+      const ROTATION_ID = "100";
       const angleDisplay = document.getElementById("angle");
       const statusDisplay = document.getElementById("status");
       const errorDisplay = document.getElementById("error");
@@ -45,19 +45,22 @@
         try {
           const { error } = await supabase
             .from("rotation")
-            .upsert([{angle, updated_at: new Date().toISOString() }], { onConflict: ["id"] });
+            .upsert(
+              [{ id: ROTATION_ID, angle }],
+              { onConflict: ["id"] }
+            );
 
           if (error) {
-            errorDisplay.textContent = "Error: " + error.message;
+            errorDisplay.textContent = "❌ Error: " + error.message;
             statusDisplay.textContent = "Error sending";
             statusDisplay.style.color = "red";
           } else {
             errorDisplay.textContent = "";
-            statusDisplay.textContent = "Sent successfully";
+            statusDisplay.textContent = "✅ Sent successfully";
             statusDisplay.style.color = "green";
           }
         } catch (err) {
-          errorDisplay.textContent = "JS Error: " + err.message;
+          errorDisplay.textContent = "❌ JS Error: " + err.message;
           statusDisplay.textContent = "Exception occurred";
           statusDisplay.style.color = "red";
         }
@@ -65,7 +68,7 @@
 
       window.addEventListener("deviceorientation", (e) => {
         const yaw = e.alpha ?? 0;
-        const rounded = yaw.toFixed(2);
+        const rounded = parseFloat(yaw.toFixed(2));
         angleDisplay.textContent = `Rotation: ${rounded}°`;
         updateRotation(rounded);
       });
