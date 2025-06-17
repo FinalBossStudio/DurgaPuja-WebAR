@@ -45,7 +45,7 @@
         try {
           const { error } = await supabase
             .from("rotation")
-            .upsert([{ id: ROTATION_ID, angle, updated_at: new Date().toISOString() }], { onConflict: ["id"] });
+            .upsert([{angle, updated_at: new Date().toISOString() }], { onConflict: ["id"] });
 
           if (error) {
             errorDisplay.textContent = "Error: " + error.message;
